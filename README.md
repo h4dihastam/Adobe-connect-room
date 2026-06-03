@@ -19,9 +19,9 @@ project/
 
 | مسیر | توضیح |
 | --- | --- |
-| `/` | تست سریع بالا بودن سرور. |
+| `/` | صفحه ساده وضعیت سرویس + دکمه ساخت روم جدید. |
 | `/health` | پاسخ JSON برای Health Check. |
-| `/create-room` | ساخت روم Adobe Connect. |
+| `/create-room` | ساخت روم Adobe Connect؛ در مرورگر به روم ساخته‌شده Redirect می‌شود و برای API پاسخ JSON می‌دهد. |
 
 ## تنظیمات محیطی
 
@@ -61,6 +61,8 @@ flask --app app run
 curl http://127.0.0.1:5000/
 curl http://127.0.0.1:5000/health
 ```
+
+اگر آدرس اصلی سرویس را در مرورگر باز کنی، فقط صفحه وضعیت و دکمه ساخت روم را می‌بینی. خود روم وقتی ساخته می‌شود که روی دکمه **ساخت روم جدید** بزنی یا endpoint زیر را صدا بزنی.
 
 ## اجرای Production / Render
 
@@ -115,6 +117,14 @@ Exited with status 127
 4. یک بار **Manual Deploy → Clear build cache & deploy** بزن.
 
 ## ساخت روم Adobe Connect
+
+در مرورگر این آدرس را باز کن تا روم ساخته شود و مستقیم به لینک Adobe Connect منتقل شوی:
+
+```text
+https://YOUR-RENDER-APP.onrender.com/create-room?access=protected
+```
+
+برای API هم می‌توانی JSON بگیری:
 
 ```bash
 curl -X POST "https://YOUR-RENDER-APP.onrender.com/create-room?access=protected" \

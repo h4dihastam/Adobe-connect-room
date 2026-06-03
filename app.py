@@ -11,7 +11,64 @@ from urllib.parse import urljoin
 from xml.etree import ElementTree
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request
+
+
+LANDING_PAGE = """<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adobe Connect Room Creator</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f6f7fb;
+      color: #172033;
+    }
+    main {
+      width: min(92vw, 560px);
+      padding: 32px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 18px 55px rgba(20, 31, 56, 0.12);
+    }
+    h1 { margin-top: 0; }
+    p { line-height: 1.9; }
+    .status { color: #148a3b; font-weight: 700; }
+    button, a.button {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    code { direction: ltr; unicode-bidi: bidi-override; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Adobe Connect Room Creator 🚀</h1>
+    <p class="status">سرویس بالا است.</p>
+    <p>این صفحه فقط وضعیت سرویس را نشان می‌دهد. برای ساخت روم جدید باید endpoint ساخت روم را صدا بزنی.</p>
+    <form action="/create-room" method="get">
+      <input type="hidden" name="access" value="protected">
+      <button type="submit">ساخت روم جدید</button>
+    </form>
+    <p>API مستقیم: <code>/create-room?access=protected</code></p>
+  </main>
+</body>
+</html>
+"""
 
 
 @dataclass(frozen=True)
@@ -33,7 +90,7 @@ def create_app() -> Flask:
 
     @app.get("/")
     def home() -> tuple[str, int]:
-        return "Server is running 🚀", 200
+        return LANDING_PAGE, 200
 
     @app.get("/health")
     def health() -> tuple[dict[str, str], int]:
@@ -50,6 +107,9 @@ def create_app() -> Flask:
             client.login()
             meeting = client.create_meeting(room_name)
             client.set_public_access(meeting["sco_id"], access)
+
+            if wants_html_response():
+                return redirect(meeting["room"]), 302
 
             return jsonify(meeting), 201
         except AdobeConnectError as exc:
@@ -186,6 +246,11 @@ def ensure_ok(xml: ElementTree.Element, action_name: str) -> None:
     subcode = status.attrib.get("subcode") if status is not None else None
     detail = f" ({subcode})" if subcode else ""
     raise AdobeConnectError(f"Adobe Connect could not {action_name}: {code or 'missing status'}{detail}", 502)
+
+
+def wants_html_response() -> bool:
+    best_match = request.accept_mimetypes.best_match(["text/html", "application/json"])
+    return best_match == "text/html" and request.accept_mimetypes["text/html"] >= request.accept_mimetypes["application/json"]
 
 
 def text_or_none(element: ElementTree.Element | None) -> str | None:
