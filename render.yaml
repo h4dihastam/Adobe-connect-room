@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: adobe-connect-room
+    env: python
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: AC_BASE_URL
+        sync: false
+      - key: AC_USER
+        sync: false
+      - key: AC_PASS
+        sync: false
+      - key: AC_FOLDER_ID
+        sync: false
