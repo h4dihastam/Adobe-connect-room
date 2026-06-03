@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: adobe-connect-room
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: AC_BASE_URL
+        sync: false
+      - key: AC_USER
+        sync: false
+      - key: AC_PASS
+        sync: false
+      - key: AC_FOLDER_ID
+        sync: false

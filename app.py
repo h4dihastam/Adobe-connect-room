@@ -31,6 +31,10 @@ class AdobeConnectConfig:
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    @app.get("/")
+    def home() -> tuple[str, int]:
+        return "Server is running 🚀", 200
+
     @app.get("/health")
     def health() -> tuple[dict[str, str], int]:
         return {"status": "ok"}, 200
